@@ -3,8 +3,8 @@
     <!-- <div  class="lift-item"></div> -->
     <div
       :style="{
-        height: prop.height + 'px',
-        bottom: (prop.floor - 1) * prop.height + 'px',
+        height: height + 'px',
+        bottom: (prop.floor - 1) * height + 'px',
         'transition-duration': prop.speed + 's',
       }"
       class="lift-item"
@@ -17,7 +17,7 @@
 <script>
 export default {
   name: "lift",
-  props: ["prop"],
+  props: ["prop", 'height'],
 };
 </script>
 <style lang="scss">

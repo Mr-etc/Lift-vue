@@ -1,7 +1,8 @@
 <template>
   <div class="wrap">
-    <Lift :prop="LiftData" />
-    <Buttons :height="LiftData.height" :floor="TotlaFloor" @ChangeFloor="ChangeFloor($event)"/>
+    <Lift v-for="(lift, key) in LiftData.LiftObj" :key="key" :prop="lift" :height="LiftData.height"/>
+    <!-- <Lift :prop="LiftData" /> -->
+    <Buttons :height="LiftData.height" :floor="LiftData.TotlaFloor" @ChangeFloor="ChangeFloor($event)"/>
   </div>
 </template>
 
@@ -18,40 +19,52 @@ export default {
   data: () => ({
     LiftData: {
       height: 150,
-      floor: 1,
-      speed: 1,
       queue: [],
-      goes: false,
-      wait: false
-    },
-    TotlaFloor: 5,
+      TotlaFloor: 5,
+      LiftObj:[
+        {
+          floor: 1,
+          speed: 1,
+          goes: false,
+          wait: false
+        },
+        {
+          floor: 1,
+          speed: 1,
+          goes: false,
+          wait: false
+        }
+      ],
+    }
   }),
   methods: {
     ChangeFloor(floor){
       this.LiftData.queue.push(floor);
-        var Startfunc = goesFunc.bind(this); 
-      if(!this.LiftData.goes){
-        this.LiftData.goes = true;
-        Startfunc();
-      }else
-        return;
-      async function goesFunc(){
-        let speed = Math.abs(this.LiftData.queue[0] - this.LiftData.floor);
-        this.LiftData.speed = speed;
-        this.LiftData.floor = this.LiftData.queue[0];
-        await new Promise(resolve => setTimeout(resolve, (speed*1000)));
-        this.LiftData.wait = !this.LiftData.wait;
-        await new Promise(resolve => setTimeout(resolve, (3000)));
-        this.LiftData.wait = !this.LiftData.wait;
-
+      var Startfunc = goesFunc.bind(this); 
+      for(let i = 0; i<this.LiftData.LiftObj.length; i++){
+        if(!this.LiftData.LiftObj[i].goes){
+          this.LiftData.LiftObj[i].goes = true;
+          Startfunc(i);
+          return;
+        }else if(i == (this.LiftData.LiftObj.length-1))
+          return;
+      }
+      async function goesFunc(key){
+        let speed = Math.abs(this.LiftData.queue[0] - this.LiftData.LiftObj[key].floor);
+        this.LiftData.LiftObj[key].speed = speed;
+        this.LiftData.LiftObj[key].floor = this.LiftData.queue[0];
         this.LiftData.queue.shift();
+        await new Promise(resolve => setTimeout(resolve, (speed*1000)));
+        this.LiftData.LiftObj[key].wait = !this.LiftData.LiftObj[key].wait;
+        await new Promise(resolve => setTimeout(resolve, (3000)));
+        this.LiftData.LiftObj[key].wait = !this.LiftData.LiftObj[key].wait;
         if(this.LiftData.queue.length < 1)
         {
-          this.LiftData.goes = false;
+          this.LiftData.LiftObj[key].goes = false;
           return;
         }
         else
-          Startfunc();
+          Startfunc(key);
       }
     }
   }
